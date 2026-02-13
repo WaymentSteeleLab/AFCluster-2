@@ -48,28 +48,29 @@ def run_cluster(args, subfolder, input):
 
 def run_neighborcluster(args, subfolder, input):
     '''Downsample original MSA and of those, take N closest sequences to be the clusters.
-    Each pred is for different variant'''
+    Each prediction is for different variant'''
 
     IDs, seqs = load_fasta(input)
-    L = len(seqs[0])
-    #filter by frac gaps
-    gap_filt_inds = [i for i,x in enumerate(seqs) if x.count('-') / L < float(args.gap_cutoff)]
+    if args.downsample:
+        L = len(seqs[0])
+        #filter by frac gaps
+        gap_filt_inds = [i for i,x in enumerate(seqs) if x.count('-') / L < float(args.gap_cutoff)]
 
-    filt_msa_file = f"{subfolder}/filt_gaps.a3m"
-    write_fasta([IDs[i] for i in gap_filt_inds], [seqs[i] for i in gap_filt_inds], outfile=filt_msa_file)
-    filtered_IDs, filtered_seqs = downsample_msa(filt_msa_file)
+        filt_msa_file = f"{subfolder}/filt_gaps.a3m"
+        write_fasta([IDs[i] for i in gap_filt_inds], [seqs[i] for i in gap_filt_inds], outfile=filt_msa_file)
+        IDs, seqs = downsample_msa(filt_msa_file)
+        print(f'downsampled to {len(filtered_IDs)} variants')
 
     counter=0
-    print(f'downsampled to {len(filtered_IDs)} variants')
     cluster_dir = os.path.join(subfolder, "clusters",)
     os.makedirs(cluster_dir, exist_ok=True)
 
-    for ind, seq in list(zip(filtered_IDs, filtered_seqs)):
-        closest_inds = get_closest_n_seqs(seq, filtered_seqs, n=args.num_neighbors)
+    for ind, seq in list(zip(IDs, seqs)):
+        closest_inds = get_closest_n_seqs(seq, seqs, n=args.num_neighbors)
         outpath = os.path.join(cluster_dir, f"{args.keyword}_{counter:03d}.a3m")
 
-        inds_for_cluster = [filtered_IDs[x] for x in closest_inds]
-        seqs_for_cluster = [filtered_seqs[x] for x in closest_inds]
+        inds_for_cluster = [IDs[x] for x in closest_inds]
+        seqs_for_cluster = [seqs[x] for x in closest_inds]
         seqs_for_cluster = fix_neighborcluster_msas(seqs_for_cluster)
 
         write_fasta(inds_for_cluster, seqs_for_cluster, outfile=outpath)

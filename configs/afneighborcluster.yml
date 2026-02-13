@@ -5,8 +5,9 @@ outdir: "output" # output directory
 tmpdir: "out" # temporary directory for msas
 
 cluster_method: "neighbor"
+downsample: False
 
-num_seeds: 1
+num_seeds: 3
 amber_relax: False
 num_neighbors: 30
 zip_outputs: True
