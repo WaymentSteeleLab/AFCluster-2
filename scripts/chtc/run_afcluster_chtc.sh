@@ -19,6 +19,9 @@ else
     python -m colabfold.download
 fi
 
+# move into repo
+cd AFCluster-2
+
 NAME=$1
 SEQ=$2
 
