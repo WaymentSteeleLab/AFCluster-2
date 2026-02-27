@@ -122,7 +122,7 @@ def main(args):
 
                 sp_command = ['colabfold_batch', 
                                     '--use-dropout', 
-                                    '--num-recycle', '3', 
+                                    '--num-recycle', f'{args.n_recycles}', 
                                     '--random-seed', f'{i}', 
                                     '--jobname-prefix', f'{fil_name}',
                                     f'{fil}', f'{pred_dir}/{fil_name}/s{i}']
