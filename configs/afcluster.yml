@@ -6,7 +6,7 @@ tmpdir: "tmp" # temporary directory for msas
 num_seeds: 4
 amber_relax: False
 cluster_method: "dbscan"
-
+n_recycles: 3
 zip_outputs: True
 
 dbscan:
