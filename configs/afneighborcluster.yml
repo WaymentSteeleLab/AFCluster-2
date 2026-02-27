@@ -3,7 +3,7 @@ gap_cutoff: 0.1
 random_seed: 42
 outdir: "output" # output directory
 tmpdir: "out" # temporary directory for msas
-
+n_recycles: 3
 cluster_method: "neighbor"
 downsample: False
 
