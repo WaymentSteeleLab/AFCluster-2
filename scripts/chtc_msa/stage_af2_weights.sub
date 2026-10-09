@@ -1,0 +1,20 @@
+# Run ONCE to populate /staging with AF2 params.
+#   condor_submit stage_af2_weights.sub
+# Then check job.out for the osdf:/// path to use in nc_msa.sub.
+Universe        = container
+container_image = docker://ghcr.io/sokrypton/colabfold:1.5.5-cuda12.2.2
+Executable      = stage_af2_weights.sh
+Arguments       = $ENV(USER)
+
+transfer_input_files    = stage_af2_weights.sh
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+
+RequestCpus   = 4
+RequestMemory = 8GB
+RequestDisk   = 20GB
+
+Log    = stage_weights.log
+Output = stage_weights.out
+Error  = stage_weights.err
+Queue

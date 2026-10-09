@@ -1,0 +1,53 @@
+#  NeighborCluster from a pre-built MSA
+#
+#  BEFORE SUBMITTING
+#    1. set USERNAME below (or leave $ENV(USER) if it resolves correctly)
+#       weights are read from /staging/a/$USER/af2_weights by the runner,
+#       matching your working job — they are NOT transferred
+#    2. put your .a3m files in this directory
+#    3. list them in msa_jobs.csv (see that file for the format)
+#    4. mkdir -p condor_log
+#
+#  msa_jobs.csv columns:  MSA,SHARD,NSHARDS,SEEDS
+#
+Universe        = container
+container_image = oras://ghcr.io/hwaymentsteele/afcluster2:0.1
+Executable      = run_nc_msa_chtc.sh
+Arguments       = $(MSA) $(SHARD) $(NSHARDS) $(SEEDS)
+
+USERNAME = $ENV(USER)
+
+
+# IMPORTANT: this file be a TARBALL, not a directory. osdf:/// cannot transfer a directory
+# Create it once:  cd /staging/a/$USER && tar -cf af2_weights.tar -C af2_weights .
+#
+# NOTE the CHTC staging layout: /chtc/staging/<first-letter>/<user>/...
+transfer_input_files = /home/$(USERNAME)/AFCluster-2, $(MSA), osdf:///chtc/staging/a/$(USERNAME)/af2_weights.tar
+
+should_transfer_files  = YES
+when_to_transfer_output = ON_EXIT
+
+transfer_output_files   = results_a3m, results_pdb
+transfer_output_remaps  = "results_a3m = results/$(MSA)_shard$(SHARD)_a3m ; results_pdb = results/$(MSA)_shard$(SHARD)_pdb"
+
+# Uncomment to widen pool.
+#+WantGPULab        = true
+#+want_campus_pools = true
+#+want_ospool       = true
+
+request_cpus   = 1
+request_memory = 16GB
+retry_request_memory = 32GB
+request_disk   = 40GB
+request_gpus   = 1
+gpus_minimum_memory = 10000
+
++GPUJobLength = "long"
+
+batch_name    = nc_msa
+stream_output = true
+output = condor_log/$(batch_name)_$(Cluster)_$(Process).out
+error  = condor_log/$(batch_name)_$(Cluster)_$(Process).err
+log    = condor_log/$(batch_name)_$(Cluster)_$(Process).log
+
+Queue MSA,SHARD,NSHARDS,SEEDS from msa_jobs.csv
